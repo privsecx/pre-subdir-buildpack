@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# Usage: bin/compile BUILD_DIR CACHE_DIR ENV_DIR
+
+set -euo pipefail
+
+# Detect requirements and fail if not met.
+# Note: we can't do this in bin/detect script
+# as we don't have access to env vars there.
+
+build_dir=$1
+env_dir=$3
+
+failed=false
+
+for env_var in PROJECT_PATH; do
+  if [[ -f "${env_dir}/${env_var}" ]]; then
+    export ${env_var}="$(cat ${env_dir}/${env_var})"
+  else
+    echo "FATAL: Please set env var: ${env_var}"
+    failed=true
+  fi
+done
+
+if [ $failed = true ]; then
+  exit 1
+fi
+
+set +x
+echo "-----> Copying .heroku to ${PROJECT_PATH}"
+set -x
+cp -R ${build_dir}/.heroku ${build_dir}/${PROJECT_PATH}/

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# Usage: bin/detect BUILD_DIR
+
+echo "Pre-subdir buildpack"
