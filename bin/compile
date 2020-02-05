@@ -30,3 +30,9 @@ set +x
 echo "-----> Copying .heroku to ${PROJECT_PATH}"
 set -x
 cp -R ${build_dir}/.heroku ${build_dir}/${PROJECT_PATH}/
+
+set +x
+echo "-----> Running yarn install in ${PROJECT_PATH}"
+set -x
+cd ${build_dir}/${PROJECT_PATH}/
+yarn install --frozen-lockfile --production
