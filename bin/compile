@@ -12,8 +12,7 @@ build_dir=$1
 env_dir=$3
 
 failed=false
-
-for env_var in PROJECT_PATH; do
+for env_var in FRONTEND_BUILDPACK_JS_APP FRONTEND_BUILDPACK_JS_ROUTE FRONTEND_BUILDPACK_RAILS_APP; do
   if [[ -f "${env_dir}/${env_var}" ]]; then
     export ${env_var}="$(cat ${env_dir}/${env_var})"
   else
@@ -26,13 +25,32 @@ if [ $failed = true ]; then
   exit 1
 fi
 
-set +x
-echo "-----> Copying .heroku to ${PROJECT_PATH}"
-set -x
-cp -R ${build_dir}/.heroku ${build_dir}/${PROJECT_PATH}/
+js_app="${build_dir}/${FRONTEND_BUILDPACK_JS_APP}"
+js_route="${FRONTEND_BUILDPACK_JS_ROUTE}"
+rails_app="${build_dir}/${FRONTEND_BUILDPACK_RAILS_APP}"
+
+js_app_requirement=$js_app/package.json
+if [[ ! -f ${js_app_requirement} ]]; then
+  echo "FATAL: Missing expected file: ${js_app_requirement}"
+  failed=true
+fi
+
+js_app_copy="${rails_app}/frontends/raw/${js_route}"
+if [[ -e $js_app_copy ]]; then
+  echo "FATAL: Unexpected: $js_app_copy already exists"
+  failed=true
+fi
+
+if [ $failed = true ]; then
+  exit 1
+fi
+
+# Requirements are met; proceed with main actions:
 
 set +x
-echo "-----> Running yarn install in ${PROJECT_PATH}"
+echo "-----> Copying raw frontend to rails app"
 set -x
-cd ${build_dir}/${PROJECT_PATH}/
-yarn install --frozen-lockfile --production
+mkdir -p ${js_app_copy}
+cp -R ${js_app}/. ${js_app_copy}
+
+ls -laFG ${js_app_copy}/
