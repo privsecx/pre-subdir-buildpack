@@ -29,7 +29,11 @@ fi
 set +x
 echo "-----> Copying .heroku to ${PROJECT_PATH}"
 set -x
-cp -R ${build_dir}/.heroku ${build_dir}/${PROJECT_PATH}/
+cd ${build_dir}
+
+find . -maxdepth 2 | sort  # DEBUG
+
+cp -R .heroku .profile.d ${build_dir}/${PROJECT_PATH}/
 
 set +x
 echo "-----> Running yarn install in ${PROJECT_PATH}"
